@@ -1,0 +1,2 @@
+/home/jeff/dev/tools/gnu-arm/bin/arm-none-eabi-ar qc libHatronic_Core_Lib.a CMakeFiles/Hatronic_Core_Lib.dir/src/Fifo.c.obj
+/home/jeff/dev/tools/gnu-arm/bin/arm-none-eabi-ranlib libHatronic_Core_Lib.a
