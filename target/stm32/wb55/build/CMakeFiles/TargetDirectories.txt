@@ -1,3 +1,0 @@
-/home/jeff/dev/projects/templates_and_tools/Templates/Project Template/stm32_WB55/build/CMakeFiles/STM32_WB55_Template.elf.dir
-/home/jeff/dev/projects/templates_and_tools/Templates/Project Template/stm32_WB55/build/CMakeFiles/edit_cache.dir
-/home/jeff/dev/projects/templates_and_tools/Templates/Project Template/stm32_WB55/build/CMakeFiles/rebuild_cache.dir
