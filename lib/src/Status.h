@@ -10,10 +10,11 @@
 
 //TODO documentation on how to use status
 
-#ifndef Status
-#define Status
+#ifndef STATUS
+#define STATUS
 
 #include <stdint.h>
+#include <stdio.h>
 
 // Exported Types ************************************
 
@@ -345,6 +346,6 @@ typedef union {
 //TODO to string
 //TODO CLI?
 
-// END Status
+// END STATUS
 #endif
 

@@ -75,5 +75,10 @@
 			"// END $TM_FILENAME_BASE",
 			"#endif",
 		]
-	}
+	},
+	"errorCheck" :{
+		"scope": "c",
+		"prefix": "errorCheck",
+		"body": ["if (STATUS_CHECK(${0:ret})) return STATUS_PASS_UP(${0:ret});"]
+	},	
 }
