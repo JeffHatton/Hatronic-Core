@@ -15,6 +15,8 @@
 
 // Constants ********************************************
 
+#define OBJ_HEADER_SIZE 2
+
 // Macros ***********************************************
 
 /**
@@ -28,6 +30,22 @@
 // Private Variables ************************************
 
 // Private Functions *************************************
+
+static inline void PutByte(Fifo_t* fifo, uint8_t byte)
+{
+    fifo->Buf[fifo->Head] = byte;
+    fifo->Head++;
+    if (fifo->Head == fifo->Size) fifo->Head = 0;
+}
+
+static inline uint8_t GetByte(Fifo_t* fifo)
+{
+    uint8_t data = fifo->Buf[fifo->Tail];
+    fifo->Tail++;
+    if (fifo->Tail == fifo->Size) fifo->Tail = 0;
+
+    return data;
+}
 
 // Public Functions *************************************
 
@@ -46,6 +64,7 @@ Status_t Fifo_Init(Fifo_t* fifo, uint8_t* buffer, uint16_t size)
     fifo->Status = Status_Ok;
     fifo->AllowWrap = false;
     fifo->ObjectMode = false;
+    fifo->ByteMode = false;
 
     return Status_Ok;
 }
@@ -134,11 +153,15 @@ Status_t Fifo_Put(Fifo_t* fifo, uint8_t* data, uint16_t size)
     if (data == NULL) return Status_NullPtr;
     if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
 
+    if (fifo->ObjectMode) return Status_InvalidState;
+
     uint16_t free;
     Status_t ret = Fifo_GetFree(fifo, &free);
     if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
 
     //TODO LOCK
+
+    fifo->ByteMode = true;
 
     if (free < size) {
         // If wrap is allowed free space up
@@ -158,18 +181,12 @@ Status_t Fifo_Put(Fifo_t* fifo, uint8_t* data, uint16_t size)
         }
     }
 
-    uint16_t head = fifo->Head;
     uint16_t counter = 0;
     while (counter < size)
     {    
-        fifo->Buf[head] = data[counter];
-
+        PutByte(fifo, data[counter]);
         counter++;
-        head++;
-        if (head == fifo->Size) head = 0;
     }
-
-    fifo->Head = head;
 
     //TODO unlock
 
@@ -182,6 +199,8 @@ Status_t Fifo_Get(Fifo_t* fifo, uint16_t size, uint8_t* data)
     if (data == NULL) return Status_NullPtr;
     if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
 
+    if (fifo->ObjectMode) return Status_InvalidState;
+
     uint16_t used;
     Status_t ret = Fifo_GetUsed(fifo, &used);
     if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
@@ -190,18 +209,12 @@ Status_t Fifo_Get(Fifo_t* fifo, uint16_t size, uint8_t* data)
 
     //TODO LOCK
 
-    uint16_t tail = fifo->Tail;
     uint16_t counter = 0;
     while (counter < size)
     {
-        data[counter] = fifo->Buf[tail];
-
+        data[counter] = GetByte(fifo);
         counter++;
-        tail++;
-        if (tail == fifo->Size) tail = 0;
     }
-
-    fifo->Tail = tail;
 
     //TODO unlock
 
@@ -223,16 +236,28 @@ Status_t Fifo_Pop(Fifo_t* fifo, uint16_t size)
         return Status_Ok;
     }
 
-    uint16_t tail = fifo->Tail;
-    uint16_t counter = 0;
-    while (counter < size)
+    if (fifo->ObjectMode)
     {
-        counter++;
-        tail++;
-        if (tail == fifo->Size) tail = 0;
+        for (size_t i = 0; i < size; i++)
+        {
+            uint16_t objSize = GetByte(fifo) | GetByte(fifo) << 8;
+            uint16_t counter = 0;
+            while (counter < objSize)
+            {
+                GetByte(fifo);
+                counter++;
+            }
+        }
     }
-
-    fifo->Tail = tail;
+    else
+    {
+        uint16_t counter = 0;
+        while (counter < size)
+        {
+            GetByte(fifo);
+            counter++;
+        }
+    }
 
     //TODO unlock
 
@@ -245,6 +270,8 @@ Status_t Fifo_Peek(Fifo_t* fifo, uint16_t offset, uint16_t size, uint8_t* data)
     if (data == NULL) return Status_NullPtr;
     if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
 
+    // if (fifo->ObjectMode) return Status_InvalidState;
+
     uint16_t used;
     Status_t ret = Fifo_GetUsed(fifo, &used);
     if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
@@ -253,6 +280,8 @@ Status_t Fifo_Peek(Fifo_t* fifo, uint16_t offset, uint16_t size, uint8_t* data)
 
     uint16_t counter = 0;
     uint16_t tail = fifo->Tail + offset;
+    if (tail >= fifo->Size) tail -= fifo->Size;
+
     while (counter < size)
     {        
         data[counter] = fifo->Buf[tail];
@@ -265,9 +294,174 @@ Status_t Fifo_Peek(Fifo_t* fifo, uint16_t offset, uint16_t size, uint8_t* data)
     return Status_Ok;
 }
 
-Status_t Fifo_PutObj(Fifo_t* fifo, void* data, uint16_t size);
-Status_t Fifo_GetObj(Fifo_t* fifo, uint16_t* bufferSize, uint16_t* size, void* data);
-Status_t Fifo_PeekObj(Fifo_t* fifo, uint16_t offset, uint16_t* bufferSize, uint16_t* size, void* data);
+Status_t Fifo_PutObj(Fifo_t* fifo, uint8_t* data, uint16_t size)
+{
+    if (fifo == NULL || data == NULL) return Status_NullPtr;
+    if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
+
+    if (fifo->ByteMode) return Status_InvalidState;
+
+    uint16_t free;
+    Status_t ret = Fifo_GetFree(fifo, &free);
+    if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+
+    //TODO LOCK
+
+    fifo->ObjectMode = true;
+
+    if (free < (size + OBJ_HEADER_SIZE)) {
+        // If wrap is allowed free space up
+        if (fifo->AllowWrap)
+        {
+            if (CAP(fifo) < size)
+            {
+                return Status_BufferFull;
+            }
+
+            do 
+            {
+                ret = Fifo_Pop(fifo, 1);
+                if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+
+                ret = Fifo_GetFree(fifo, &free);
+                if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+            } while(free < (size + OBJ_HEADER_SIZE));
+        }        
+        else
+        {
+            return Status_BufferFull;
+        }
+    }
+
+    uint8_t byte = size & 0x00FF;
+    PutByte(fifo, byte);
+    byte = size >> 8;
+    PutByte(fifo, byte);
+
+    uint16_t counter = 0;
+    while (counter < size)
+    {    
+        PutByte(fifo, data[counter]);
+        counter++;
+    }
+
+    //TODO unlock
+
+    return Status_Ok;
+}
+
+Status_t Fifo_GetObj(Fifo_t* fifo, uint16_t* size, uint8_t* data)
+{
+    if (fifo == NULL || data == NULL || size == NULL) return Status_NullPtr;
+    if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
+
+    if (!fifo->ObjectMode) return Status_InvalidState;
+
+    bool empty;
+    Status_t ret = Fifo_IsEmpty(fifo, &empty);
+    if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+
+    if (empty) return Status_BufferEmpty;
+
+    uint16_t objSize;
+    ret = Fifo_Peek(fifo, 0, 2, (uint8_t*)&objSize);
+    if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+    
+    if (objSize > *size)
+    {
+        *size = objSize;
+        return Status_BufferTooSmall;
+    }
+
+    GetByte(fifo);
+    GetByte(fifo);
+
+    *size = objSize;
+
+    uint16_t counter = 0;
+    while (counter < objSize)
+    {
+        data[counter] = GetByte(fifo);
+        counter++;
+    }
+
+    return Status_Ok;
+}
+
+
+Status_t Fifo_PeekObj(Fifo_t* fifo, uint16_t offset, uint16_t* size, uint8_t* data)
+{
+    if (fifo == NULL || data == NULL || size == NULL) return Status_NullPtr;
+    if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
+
+    if (!fifo->ObjectMode) return Status_InvalidState;
+
+    bool empty;
+    Status_t ret = Fifo_IsEmpty(fifo, &empty);
+    if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+
+    if (empty) return Status_BufferEmpty;
+
+    uint16_t tail = fifo->Tail;
+    uint16_t currentIdx = 0;
+    uint16_t currentOffset = offset;
+
+    while (currentOffset > 0)    
+    {
+        uint16_t objSize;
+        ret = Fifo_Peek(fifo, currentIdx, 2, (uint8_t*)&objSize);
+        if (STATUS_CHECK(ret)) return Status_NotEnoughData;
+
+        uint16_t counter = 0;
+
+        currentIdx++;
+        currentIdx++;
+
+        tail++;
+        if (tail == fifo->Size) tail = 0;
+        tail++;
+        if (tail == fifo->Size) tail = 0;
+
+        while (counter < *size)
+        {        
+            currentIdx++;
+            counter++;
+            tail++;
+            if (tail == fifo->Size) tail = 0;
+        }
+        currentOffset--;
+    }
+
+    
+    uint16_t objSize = 0;
+    ret = Fifo_Peek(fifo, currentIdx, 2, (uint8_t*)&objSize);
+    if (STATUS_CHECK(ret)) return STATUS_PASS_UP(ret);
+    
+    if (objSize > *size)
+    {
+        *size = objSize;
+        return Status_BufferTooSmall;
+    }
+
+    *size = objSize;
+
+    uint16_t counter = 0;
+    tail++;
+    if (tail == fifo->Size) tail = 0;
+    tail++;
+    if (tail == fifo->Size) tail = 0;
+
+    while (counter < *size)
+    {        
+        data[counter] = fifo->Buf[tail];
+
+        counter++;
+        tail++;
+        if (tail == fifo->Size) tail = 0;
+    }
+
+    return Status_Ok;
+}
 
 Status_t Fifo_ResetByConsumer(Fifo_t* fifo)
 {
