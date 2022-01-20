@@ -569,4 +569,6 @@ void test_Fifo_GetNumObjs(void)
     }
 }
 
+//TODO test error cases
+
 #endif // TEST
