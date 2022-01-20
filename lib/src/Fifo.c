@@ -422,7 +422,7 @@ Status_t Fifo_PeekObj(Fifo_t* fifo, uint16_t offset, uint16_t* size, uint8_t* da
         tail++;
         if (tail == fifo->Size) tail = 0;
 
-        while (counter < *size)
+        while (counter < objSize)
         {        
             currentIdx++;
             counter++;
@@ -459,6 +459,39 @@ Status_t Fifo_PeekObj(Fifo_t* fifo, uint16_t offset, uint16_t* size, uint8_t* da
         tail++;
         if (tail == fifo->Size) tail = 0;
     }
+
+    return Status_Ok;
+}
+
+Status_t Fifo_GetNumObjs(Fifo_t* fifo, uint16_t* count)
+{
+    if (fifo == NULL || count == NULL) return Status_NullPtr;
+    if (STATUS_CHECK(fifo->Status)) return STATUS_PASS_UP(fifo->Status);
+
+    if (!fifo->ObjectMode) return Status_InvalidState;
+
+    uint16_t currentIdx = 0;
+    uint16_t objCount = 0;
+
+    while (1)    
+    {
+        uint16_t objSize;
+        Status_t ret = Fifo_Peek(fifo, currentIdx, 2, (uint8_t*)&objSize);
+        if (STATUS_CHECK(ret)) {
+            if (STATUS_IS_CODE(ret, Status_NotEnoughData))
+            {
+                // If no more data break out of loop
+                break;
+            }
+            
+            return Status_NotEnoughData;
+        }
+
+        objCount++;
+        currentIdx += objSize + 2;
+    }
+
+    *count = objCount;
 
     return Status_Ok;
 }

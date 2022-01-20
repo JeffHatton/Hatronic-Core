@@ -55,6 +55,7 @@ Status_t Fifo_Peek(Fifo_t* fifo, uint16_t offset, uint16_t size, uint8_t* data);
 Status_t Fifo_PutObj(Fifo_t* fifo, uint8_t* data, uint16_t size);
 Status_t Fifo_GetObj(Fifo_t* fifo, uint16_t* size, uint8_t* data);
 Status_t Fifo_PeekObj(Fifo_t* fifo, uint16_t offset, uint16_t* size, uint8_t* data);
+Status_t Fifo_GetNumObjs(Fifo_t* fifo, uint16_t* count);
 
 Status_t Fifo_ResetByConsumer(Fifo_t* fifo);
 Status_t Fifo_ResetByProducer(Fifo_t* fifo);

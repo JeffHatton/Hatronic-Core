@@ -505,4 +505,68 @@ void test_Fifo_PeekObj(void)
     }
 }
 
+void test_Fifo_GetNumObjs(void)
+{
+    struct TestCaseObj_t {
+        uint8_t V0;
+        uint16_t V1;
+        uint8_t V2;
+        uint32_t V3;
+    };
+
+    struct TestCaseObj_t TestCases[4];
+
+    for (size_t i = 0; i < ARRAY_SIZE(TestCases); i++)
+    {
+        TestCases[i].V0 = 0 + (i * 4);
+        TestCases[i].V1 = 1 + (i * 4);
+        TestCases[i].V2 = 2 + (i * 4);
+        TestCases[i].V3 = 3 + (i * 4);
+    }
+    
+    uint8_t buf[sizeof(TestCases) + ARRAY_SIZE(TestCases) * 2 + 1];
+
+    Fifo_t fifo = {.Status = Status_NotInitialized};
+    Status_t ret = Fifo_Init(&fifo, buf, sizeof(buf));
+    TEST_ASSERT_EQUAL_HEX32(0, ret);
+
+    for (size_t i = 0; i < ARRAY_SIZE(TestCases); i++)
+    {
+        ret = Fifo_PutObj(&fifo, (uint8_t*)&TestCases[i], sizeof(struct TestCaseObj_t));
+        TEST_ASSERT_EQUAL_HEX32(0, ret);
+    }
+
+    uint16_t count;
+    ret = Fifo_GetNumObjs(&fifo, &count);
+    TEST_ASSERT_EQUAL_HEX32(0, ret);
+    TEST_ASSERT_EQUAL_INT(ARRAY_SIZE(TestCases), count);
+
+    ret = Fifo_Pop(&fifo, 2);
+    TEST_ASSERT_EQUAL_HEX32(0, ret);
+
+    ret = Fifo_GetNumObjs(&fifo, &count);
+    TEST_ASSERT_EQUAL_HEX32(0, ret);
+    TEST_ASSERT_EQUAL_INT((ARRAY_SIZE(TestCases) - 2), count);
+
+    //
+    // Refill buffer then pop elements 1 at a time checking count each time
+    //
+
+    for (size_t i = 0; i < 2; i++)
+    {
+        ret = Fifo_PutObj(&fifo, (uint8_t*)&TestCases[i], sizeof(struct TestCaseObj_t));
+        TEST_ASSERT_EQUAL_HEX32(0, ret);
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(TestCases); i++)
+    {
+        ret = Fifo_Pop(&fifo, 1);
+        TEST_ASSERT_EQUAL_HEX32(0, ret);
+
+        ret = Fifo_GetNumObjs(&fifo, &count);
+        TEST_ASSERT_EQUAL_HEX32(0, ret);
+        TEST_ASSERT_EQUAL_INT((ARRAY_SIZE(TestCases) - 1) - i, count);
+    }
+}
+
 #endif // TEST
