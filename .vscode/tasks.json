@@ -56,7 +56,19 @@
         "problemMatcher": {
             "base": "$gcc", 
         }
-      },         
+      },        
+      {
+        "type": "shell",
+        "label": "Export",
+        "command": "cmake -P cmake/HatronicCoreExport.cmake",
+        "options": {
+            "cwd": "${workspaceFolder}"
+        },
+        "group": "build",
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },  
       // {
       //   "type": "shell",
       //   "label": "Flash",

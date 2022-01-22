@@ -8,8 +8,8 @@
  * 
  */
 
-#ifndef Array
-#define Array
+#ifndef Array_H
+#define Array_H
 
 // Exported Types ************************************
 
@@ -27,5 +27,5 @@
 
 // Exported Functions ************************************
 
-// END Array
+// END Array_H
 #endif

@@ -8,8 +8,8 @@
  * 
  */
 
-#ifndef StatusCodes
-#define StatusCodes
+#ifndef StatusCodes_H
+#define StatusCodes_H
 
 // Exported Types ************************************
 
@@ -50,5 +50,5 @@ typedef enum
 
 // Exported Functions ************************************
 
-// END StatusCodes
+// END StatusCodes_H
 #endif

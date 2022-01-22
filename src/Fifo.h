@@ -10,8 +10,8 @@
  * 
  */
 
-#ifndef Fifo
-#define Fifo
+#ifndef Fifo_H
+#define Fifo_H
 
 #include "Status.h"
 #include "stdbool.h"
@@ -243,5 +243,5 @@ Status_t Fifo_ResetByConsumer(Fifo_t* fifo);
  */
 Status_t Fifo_ResetByProducer(Fifo_t* fifo);
 
-// END Fifo
+// END Fifo_H
 #endif
