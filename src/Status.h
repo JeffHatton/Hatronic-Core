@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "StatusCodes.h"
+
 // Exported Types ************************************
 
 typedef uint32_t Status_t;

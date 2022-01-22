@@ -34,7 +34,7 @@
     - +:src/**
     - -:support
   :source:
-    - ../lib/src/**
+    - ../src/**
   :support:
     - support
   :libraries: []

@@ -11,8 +11,6 @@
 #ifndef StatusCodes
 #define StatusCodes
 
-#include "Status.h"
-
 // Exported Types ************************************
 
 #define STATUS_CORE_START 0x001
