@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/jeff/dev/projects/hatronic_core/Hatronic-Core/lib/build",
-  "command": "/home/jeff/dev/tools/gnu-arm/bin/arm-none-eabi-gcc -DTEST -I/home/jeff/dev/projects/hatronic_core/Hatronic-Core/lib/src -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fdata-sections -ffunction-sections -Wall -O0 -g3 -std=c99 -o CMakeFiles/Hatronic_Core_Lib.dir/src/Fifo.c.obj -c /home/jeff/dev/projects/hatronic_core/Hatronic-Core/lib/src/Fifo.c",
-  "file": "/home/jeff/dev/projects/hatronic_core/Hatronic-Core/lib/src/Fifo.c"
-}
-]

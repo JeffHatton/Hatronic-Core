@@ -1,0 +1,5 @@
+// the configured options and settings for Tutorial
+#define HATRONIC_CORE_VERSION_MAJOR @HatronicCore_VERSION_MAJOR@
+#define HATRONIC_CORE_VERSION_MINOR @HatronicCore_VERSION_MINOR@
+#define HATRONIC_CORE_VERSION_PATCH @HatronicCore_VERSION_PATCH@
+#define HATRONIC_CORE_VERSION_TWEAK @HatronicCore_VERSION_TWEAK@

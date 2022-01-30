@@ -1,0 +1,81 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "type": "shell",
+        "label": "Build Project",
+        "command": "cmake --build .",
+        "options": {
+            "cwd": "${workspaceFolder}/build"
+        },
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },      
+      {
+        "type": "shell",
+        "label": "Clean Project",
+        "command": "cmake -S . -B build -D BOARD=stm32wb55 -GNinja -D CMAKE_BUILD_TYPE=Debug --clean-first",
+        "options": {
+            "cwd": "${workspaceFolder}"
+        },
+        "group": "build",
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },
+      {
+        "type": "shell",
+        "label": "Cmake init",
+        "command": "cmake -S . -D BOARD=stm32wb55 -GNinja -D CMAKE_BUILD_TYPE=Debug",
+        "options": {
+            "cwd": "${workspaceFolder}"
+        },
+        "group": "build",
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },
+      {
+        "type": "shell",
+        "label": "Test",
+        "command": "ceedling test:all",
+        "options": {
+            "cwd": "${workspaceFolder}/test"
+        },
+        "group": {
+            "kind": "test",
+            "isDefault": true
+        },
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },        
+      {
+        "type": "shell",
+        "label": "Export",
+        "command": "cmake -P cmake/HatronicCoreExport.cmake",
+        "options": {
+            "cwd": "${workspaceFolder}"
+        },
+        "group": "build",
+        "problemMatcher": {
+            "base": "$gcc", 
+        }
+      },  
+      // {
+      //   "type": "shell",
+      //   "label": "Flash",
+      //   "command": "",
+      //   "options": {
+      //       "cwd": "${workspaceFolder}"
+      //   },
+      // },
+    ]
+  }
