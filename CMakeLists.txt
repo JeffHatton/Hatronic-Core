@@ -67,7 +67,7 @@ if(DEFINED HAT_EXE_NAME)
 endif()
 
 # Setup header for project information
-configure_file(${EXE_BASE}.h.in inc/${EXE_BASE}.h)
+configure_file(cmake/HatronicCore.h.in inc/${EXE_BASE}.h)
 
 #################################################################
 # Gather dependancies

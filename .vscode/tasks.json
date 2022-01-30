@@ -21,9 +21,9 @@
       {
         "type": "shell",
         "label": "Clean Project",
-        "command": "cmake --build --clean-first ..",
+        "command": "cmake -S . -B build -D BOARD=stm32wb55 -GNinja -D CMAKE_BUILD_TYPE=Debug --clean-first",
         "options": {
-            "cwd": "${workspaceFolder}/build"
+            "cwd": "${workspaceFolder}"
         },
         "group": "build",
         "problemMatcher": {
@@ -33,9 +33,9 @@
       {
         "type": "shell",
         "label": "Cmake init",
-        "command": "cmake .. -GNinja",
+        "command": "cmake -S . -D BOARD=stm32wb55 -GNinja -D CMAKE_BUILD_TYPE=Debug",
         "options": {
-            "cwd": "${workspaceFolder}/build"
+            "cwd": "${workspaceFolder}"
         },
         "group": "build",
         "problemMatcher": {
