@@ -52,7 +52,8 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 # Gather Source Files
 set(SRC_FILES
-    src/Fifo.c
+    src/DataStructures/Fifo.c
+    src/DataStructures/LinkedList.c
 )
 
 set(CMAKE_EXECUTABLE_SUFFIX .elf)
@@ -82,6 +83,7 @@ add_subdirectory(${ChipPath})
 
 target_include_directories(${EXE_BASE} PRIVATE
     src
+    src/DataStructures
     ${CMAKE_CURRENT_BINARY_DIR}/inc
 )
 
