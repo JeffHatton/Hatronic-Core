@@ -123,6 +123,55 @@ void test_LinkedList_Basic(void)
     TEST_ASSERT_EQUAL_PTR(NULL, list.Head);
 }
 
+void test_LinkedList_GetNode(void)
+{
+    LinkedList_t list = {.Status = Status_NotInitialized};
+
+    Status_t ret = LinkedList_Init(&list);
+    TEST_ASSERT_EQUAL_HEX32(Status_Ok, ret);
+
+    // Populate list and check count as it goes
+    for (size_t i = 0; i < ARRAY_SIZE(nodes); i++)
+    {
+        ret = LinkedList_Append(&list, nodes + i, data[i].Data, data[i].Size);
+        TEST_ASSERT_EQUAL_HEX32(Status_Ok, ret);
+
+        ret = LinkedList_NumNodes(&list, &size);
+        TEST_ASSERT_EQUAL_HEX32(Status_Ok, ret);
+        TEST_ASSERT_EQUAL_INT(i + 1, size);
+    }
+
+    LinkedListNode_t* node;
+    ret = LinkedList_FindByMember(&list,
+                                  sizeof(value1), 
+                                  offsetof(struct TestS_t, value1),
+                                  &value1.value1,
+                                  sizeof(value1.value1),
+                                  &node);
+    TEST_ASSERT_EQUAL_HEX32(Status_Ok, ret);
+    TEST_ASSERT_EQUAL_INT(sizeof(value1), node->Size);
+    TEST_ASSERT_EQUAL_MEMORY(&value1, node->Data, node->Size);
+
+    ret = LinkedList_FindByMember(&list,
+                                  sizeof(value1), 
+                                  offsetof(struct TestS_t, value2),
+                                  &value1.value2,
+                                  sizeof(value1.value2),
+                                  &node);
+    TEST_ASSERT_EQUAL_HEX32(Status_Ok, ret);
+    TEST_ASSERT_EQUAL_INT(sizeof(value1), node->Size);
+    TEST_ASSERT_EQUAL_MEMORY(&value1, node->Data, node->Size);
+
+    uint16_t x = 100;
+    ret = LinkedList_FindByMember(&list,
+                                  sizeof(value1), 
+                                  offsetof(struct TestS_t, value1),
+                                  &x,
+                                  sizeof(value1.value2),
+                                  &node);
+    TEST_ASSERT_EQUAL_HEX32(Status_NotFound, STATUS_GET_CODE(ret)); 
+}
+
 void test_LinkedList_Iter(void)
 {
     LinkedList_t list = {.Status = Status_NotInitialized};

@@ -240,6 +240,36 @@ Status_t LinkedList_FindByData(LinkedList_t* list, void* data, uint16_t size, Li
     return Status_Ok;
 }
 
+Status_t LinkedList_FindByMember(LinkedList_t* list, uint16_t nodeSize, uint32_t offset, void* data, uint16_t size, LinkedListNode_t** node)
+{
+    if (list == NULL || node == NULL || data == NULL) return Status_NullPtr;
+    if (STATUS_CHECK(list->Status)) return STATUS_PASS_UP(list->Status);
+
+    if (list->Head == NULL) return Status_BufferEmpty;
+
+    LinkedListNode_t* ptr = list->Head;
+
+    bool found = false;
+    while (ptr)
+    {         
+        if (ptr->Size == nodeSize)
+        {
+            if (0 == memcmp(data, ptr->Data + offset, size))
+            {
+                found = true;
+                *node = ptr;
+                break;
+            }
+        }
+
+        ptr = ptr->Next;
+    }
+
+    if (!found) return Status_NotFound;
+
+    return Status_Ok;
+}
+
 Status_t LinkedList_GetNode(LinkedList_t* list, uint16_t iter, LinkedListNode_t** node)
 {
     if (list == NULL || node == NULL) return Status_NullPtr;

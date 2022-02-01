@@ -108,6 +108,19 @@ Status_t LinkedList_RemoveData(LinkedList_t* list, void* data, uint16_t size);
 Status_t LinkedList_FindByData(LinkedList_t* list, void* data, uint16_t size, LinkedListNode_t** node);
 
 /**
+ * @brief Find a node by a member value in the nodes
+ * 
+ * @param list 
+ * @param nodeSize The size of the node to search for
+ * @param offset The offset within the node
+ * @param data The data to compare
+ * @param size The size of the data to comapre
+ * @param node output for the node
+ * @return Status_t 
+ */
+Status_t LinkedList_FindByMember(LinkedList_t* list, uint16_t nodeSize, uint32_t offset, void* data, uint16_t size, LinkedListNode_t** node);
+
+/**
  * @brief Get a node by its index
  * 
  * @param list 
